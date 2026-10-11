@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cubic Lab — SC, BCC, FCC 3D Simulation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+:root{--bg:#f6f8fc;--grid:#dbe4f3;--card:#fff;--ink:#1c2433;--mute:#5d6b84;--line:#d3dcec;--red:#d23c3c;--blue:#2f6fe0;--orange:#f0a020;--green:#25a35a;--acc:#2f6fe0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1624;--grid:#1c2a44;--card:#162036;--ink:#e6ecf8;--mute:#93a2c0;--line:#2a3a5a;--blue:#5b97ff;--orange:#ffb74a;--green:#3fd183;--red:#ff6b6b;--acc:#5b97ff}}
+:root[data-theme="dark"]{--bg:#0f1624;--grid:#1c2a44;--card:#162036;--ink:#e6ecf8;--mute:#93a2c0;--line:#2a3a5a;--blue:#5b97ff;--orange:#ffb74a;--green:#3fd183;--red:#ff6b6b;--acc:#5b97ff}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 "Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;
+background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;overflow-x:hidden}
+header{padding:20px 18px 6px;max-width:1280px;margin:auto;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+h1{font:700 26px/1.2 "Space Grotesk","Hind Siliguri",sans-serif;margin:0}
+header p{margin:4px 0 0;color:var(--mute);font-size:14px}
+.theme{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit;font-size:13px}
+main{max-width:1280px;margin:auto;padding:12px 18px 40px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.stage{position:sticky;top:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#cv{width:100%;height:min(66vh,560px);display:block;touch-action:none;cursor:grab}
+#cv:active{cursor:grabbing}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 14px;font-size:13px;color:var(--mute);border-top:1px solid var(--line)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.hint{position:absolute;top:10px;left:12px;font-size:12px;color:var(--mute);pointer-events:none}
+.stage{position:sticky}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+h2{font:600 17px/1.3 "Hind Siliguri",sans-serif;margin:0 0 10px;border-left:4px solid var(--red);padding-left:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.seg button{flex:1;min-width:64px;border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 10px;border-radius:8px;cursor:pointer;font:inherit;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+.row label{font-size:14px;color:var(--mute);min-width:96px}
+input[type=range]{flex:1;min-width:120px;accent-color:var(--acc)}
+input[type=number]{width:84px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+.val{font:700 15px "Space Grotesk",sans-serif;min-width:70px}
+.tog{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin-top:10px}
+.tog label{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.chip{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.chip small{display:block;color:var(--mute);font-size:12px;line-height:1.3}
+.chip b{font:700 18px "Space Grotesk",sans-serif}
+.bar{height:12px;border-radius:6px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:4px 0 14px}
+.bar div{height:100%;background:var(--green);transition:width .3s}
+.step{border-top:1px dashed var(--line);padding:9px 0;font-size:15px}
+.step h3{margin:0 0 2px;font-size:14px;color:var(--acc);font-weight:600}
+.step code{font:500 14px "Space Grotesk","Hind Siliguri",sans-serif;background:var(--bg);padding:1px 6px;border-radius:4px;word-break:break-word}
+.step .res{color:var(--red);font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left}
+tr.on td{background:color-mix(in srgb,var(--acc) 14%,transparent);font-weight:600}
+.scroll{overflow-x:auto}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media(max-width:900px){main{grid-template-columns:1fr}.stage{position:relative;top:0}#cv{height:52vh}}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+nav div{max-width:1280px;margin:auto;display:flex;gap:6px;padding:8px 18px;overflow-x:auto}
+nav a{white-space:nowrap;padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:14px}
+nav a.x{border-color:var(--acc);color:var(--acc);font-weight:600}
+html{scroll-padding-top:calc(56px + env(safe-area-inset-top,0px))}
+.stage{top:64px}.sec .stage{position:relative;top:0}
+.sec{max-width:1280px;margin:auto;padding:10px 18px 28px}.sec>h2{font-size:21px;margin-bottom:14px}
+.two{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+.cv2{width:100%;height:min(54vh,440px);display:block;touch-action:none;cursor:grab}
+.ctl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 14px;border-top:1px solid var(--line);font-size:14px}
+.ctl .seg{margin:0;flex:1 1 100%}.ctl label{display:flex;gap:6px;align-items:center}
+ul.pt{padding-left:20px;margin:6px 0}ul.pt li{margin:7px 0}
+.sbar{display:flex;height:28px;border-radius:6px;overflow:hidden;border:1px solid var(--line);font-size:12.5px;margin:6px 0 12px}
+.sbar span{display:flex;align-items:center;justify-content:center;color:#fff;white-space:nowrap;overflow:hidden}
+.cmpr{display:grid;grid-template-columns:44px 1fr 56px;gap:8px;align-items:center;font-size:14px;margin:4px 0}
+.cmpr .bar{margin:0}.cmpr.on b{color:var(--acc)}
+.note{background:color-mix(in srgb,var(--orange) 16%,transparent);border-left:4px solid var(--orange);padding:8px 12px;border-radius:6px;font-size:14.5px;margin:10px 0}
+a.lk{display:block;text-decoration:none;color:var(--ink);border-color:var(--acc)}a.lk h3{margin:0 0 4px;color:var(--acc);font-size:18px}a.lk p{margin:0;color:var(--mute);font-size:14.5px}
+@media(max-width:900px){.stage{top:0}.two{grid-template-columns:1fr}.cv2{height:46vh}}
+</style>
+</head>
+<body>
+<header>
+<div><h1>Cubic Lab</h1><p>SC · BCC · FCC — ঘুরিয়ে দেখো, slider নাড়াও, calculation নিজে বদলাতে দেখো</p></div>
+<button class="theme" id="theme" aria-label="Theme পরিবর্তন">Light / Dark</button>
+</header>
+<nav><div><a href="#explore">3D Explorer</a><a href="#calc">Calculation</a><a href="#lattice">Lattice constant</a><a href="#apf">APF</a><a class="x" href="https://miller-indeces.netlify.app/" target="_blank" rel="noopener noreferrer">Miller indices</a><a class="x" href="https://solid-statep.netlify.app/" target="_blank" rel="noopener noreferrer">Solid state topics</a></div></nav>
+<main id="explore">
+<section class="stage" style="position:sticky">
+<div style="position:relative"><canvas id="cv"></canvas><div class="hint">Drag করে ঘোরাও · scroll করে zoom</div></div>
+<div class="legend"><span><i style="background:var(--blue)"></i>Corner atom</span><span><i style="background:var(--orange)"></i>Body centre</span><span><i style="background:var(--green)"></i>Face centre</span><span><i style="background:var(--red)"></i>Diagonal</span><span><i style="background:#f5c542"></i>Touching পথ</span></div>
+</section>
+<section>
+<div class="card">
+<h2>Structure ও মান নির্বাচন</h2>
+<div class="seg" id="types"></div>
+<div class="seg" id="presets"></div>
+<div class="seg" id="mode"><button data-m="r">r দিয়ে a বের করো</button><button data-m="a">a দিয়ে r বের করো</button></div>
+<div class="row"><label id="vlabel">r (Å)</label><input type="range" id="sl"><span class="val" id="vv"></span></div>
+<div class="row"><label>Atomic mass M</label><input type="number" id="mass" step="0.01" min="1"><span style="font-size:13px;color:var(--mute)">g/mol (density-র জন্য)</span></div>
+<div class="tog">
+<label><input type="checkbox" id="tTrue"> আসল size (atom ছুঁয়ে থাকবে)</label>
+<label><input type="checkbox" id="tDiag" checked> Face ও body diagonal</label>
+<label><input type="checkbox" id="tTouch" checked> যে দিকে atom ছোঁয়</label>
+<label><input type="checkbox" id="tNb"> Coordination number দেখাও</label>
+<label><input type="checkbox" id="tAuto" checked> Auto-rotate</label>
+</div>
+</div>
+<div class="card" id="calc"><h2>Live ফলাফল ও calculation</h2><div class="chips" id="chips"></div>
+<small style="color:var(--mute)">Packing fraction (APF)</small><div class="bar"><div id="apf"></div></div>
+<div id="steps"></div></div>
+<div class="card"><h2>তিন cell-এর তুলনা</h2><div class="scroll"><table id="cmp"></table></div></div>
+</section>
+</main>
+<section class="sec" id="lattice"><h2>Lattice constant (a) আসলে কী?</h2><div class="two">
+<div class="stage"><div style="position:relative"><canvas id="cvL" class="cv2"></canvas><div class="hint">Drag করে ঘোরাও · scroll করে zoom</div></div>
+<div class="ctl"><label>পাশাপাশি cell: <input type="range" id="tile" min="1" max="3" value="2"></label><span style="color:var(--mute)">লাল রেখা = a · নীল বাক্স = একটি unit cell</span></div></div>
+<div class="card"><h2>a মানে কী?</h2><ul class="pt"><li><b>Unit cell-এর edge-এর দৈর্ঘ্য।</b> লাল রেখাটা মাপো: এক কোণার atom থেকে পরের কোণার atom পর্যন্ত দূরত্বই a।</li><li><b>পুনরাবৃত্তির ধাপ।</b> Slider বাড়িয়ে দেখো, একই cell x, y, z তিন দিকে প্রতি <code>a</code> দূরত্ব পরপর হুবহু repeat হচ্ছে। এভাবেই পুরো crystal তৈরি হয়।</li><li><b>Cubic-এ a = b = c</b> এবং তিন কোণই 90°, তাই একটা সংখ্যাই cell-এর পুরো size ঠিক করে দেয়।</li><li><b>Atom-এর size (r) থেকে a আসে।</b> SC: a = 2r, BCC: a = 4r/√3, FCC: a = 4r/√2। Structure বদলালে r-এর সাথে a-এর অনুপাত বদলায়।</li><li><b>Unit:</b> Å (1 Å = 10⁻¹⁰ m = 0.1 nm)।</li></ul><div class="note" id="latBox"></div></div></div></section>
+<section class="sec" id="apf"><h2>Atomic Packing Factor (APF) বিস্তারিত</h2><div class="two">
+<div class="stage"><div style="position:relative"><canvas id="cvA" class="cv2"></canvas><div class="hint">Drag করে ঘোরাও · scroll করে zoom</div></div>
+<div class="ctl"><div class="seg" id="apfmode"><button data-m="in" aria-pressed="true">Cell-এর ভেতরের অংশ</button><button data-m="full" aria-pressed="false">Atom জড়ো করে (n টা)</button></div><label><input type="checkbox" id="tGh" checked> পুরো atom ফিকে দেখাও</label></div>
+<div class="legend" id="apfCap"></div></div>
+<div><div class="card"><h2>APF মানে কী?</h2><ul class="pt"><li><b>Unit cell = বাক্স</b> (volume <code>a³</code>), <b>atom = শক্ত গোলক</b> (volume <code>(4/3)πr³</code>)।</li><li><b>APF = বাক্সের ভেতরে atom-এর মোট volume ÷ বাক্সের volume।</b> অর্থাৎ cell-এর কত ভাগ জায়গা atom দখল করেছে।</li><li><b>শুধু ভেতরের অংশ গোনা হয়।</b> বামের ছবিতে কাটা গোলকগুলো দেখো: corner atom-এর 1/8, face atom-এর 1/2, body atom পুরোটা cell-এর ভেতরে। তাই SC-তে 1, BCC-তে 2, FCC-তে 4 টা atom-এর সমান।</li><li><b>APF = 0.74 মানে</b> 74% জায়গায় atom, বাকি 26% ফাঁকা (void)। বেশি APF = ঘন packing, বেশি coordination number, বেশি density।</li><li><b>APF-এ r-এর প্রভাব নেই।</b> r বাড়ালে a-ও একই অনুপাতে বাড়ে, তাই r³/a³ ধ্রুব। Slider নাড়িয়ে দেখো a বদলায় কিন্তু APF একই থাকে।</li><li><b>সর্বোচ্চ সীমা:</b> সমান আকারের গোলকের জন্য সর্বোচ্চ APF ≈ 74.05% (FCC ও HCP)।</li></ul></div>
+<div class="card"><h2>এই structure-এর হিসাব</h2><div id="apfBox"></div></div></div></div></section>
+<section class="sec" id="res"><h2>আরও শেখার জন্য</h2><div class="two">
+<a class="card lk" href="https://miller-indeces.netlify.app/" target="_blank" rel="noopener noreferrer"><h3>Miller indices</h3><p>Crystal plane ও direction-কে (hkl) দিয়ে কীভাবে লেখা হয়, তা বোঝার website।</p></a>
+<a class="card lk" href="https://solid-statep.netlify.app/" target="_blank" rel="noopener noreferrer"><h3>Solid state physics: মূল topic</h3><p>Solid state physics-এর প্রধান বিষয়গুলো এক জায়গায়।</p></a></div></section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var S2=Math.SQRT2,S3=Math.sqrt(3);
+var K={SC:2,BCC:4/S3,FCC:2*S2};
+var N={SC:1,BCC:2,FCC:4},CN={SC:6,BCC:8,FCC:12};
+var BASE={SC:[[0,0,0]],BCC:[[0,0,0],[.5,.5,.5]],FCC:[[0,0,0],[.5,.5,0],[.5,0,.5],[0,.5,.5]]};
+var NNU={SC:1,BCC:S3/2,FCC:S2/2};
+var REF={SC:[0,0,0],BCC:[.5,.5,.5],FCC:[.5,.5,0]};
+var TOUCH={SC:[[0,0,0],[1,0,0]],BCC:[[0,0,0],[1,1,1]],FCC:[[0,0,0],[1,1,0]]};
+var PRE={SC:{n:'Po',r:1.67,M:209},BCC:{n:'Fe',r:1.24,M:55.85},FCC:{n:'Cu',r:1.28,M:63.55}};
+var DIR={SC:'Edge বরাবর: <code>a = 2r</code>',BCC:'Body diagonal বরাবর: <code>√3·a = 4r</code>',FCC:'Face diagonal বরাবর: <code>√2·a = 4r</code>'};
+var s={t:'FCC',m:'r',v:1.28,M:63.55,tr:false,dg:true,tc:true,nb:false,au:true};
+var $=function(i){return document.getElementById(i)};
+var f=function(x,d){return x.toFixed(d==null?3:d)};
+
+// ---------- three.js ----------
+var cv=$('cv'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));
+var sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,100);cam.position.set(0,0,7.5);
+sc.add(new THREE.AmbientLight(0xffffff,.65));
+var dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(4,6,5);sc.add(dl);
+var G=new THREE.Group();sc.add(G);G.rotation.set(.5,-.7,0);
+var SZ=2.6;
+function P(p){return new THREE.Vector3((p[0]-.5)*SZ,(p[1]-.5)*SZ,(p[2]-.5)*SZ)}
+function cyl(a,b,col,rad,op){var A=P(a),B=P(b),d=new THREE.Vector3().subVectors(B,A),L=d.length();
+var m=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,L,10),new THREE.MeshBasicMaterial({color:col,transparent:op!=null,opacity:op==null?1:op}));
+m.position.copy(A).addScaledVector(d,.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());G.add(m)}
+function ball(p,col,rad,op,emis){var m=new THREE.Mesh(new THREE.SphereGeometry(rad,32,24),new THREE.MeshStandardMaterial({color:col,roughness:.35,metalness:.1,transparent:op!=null,opacity:op==null?1:op,emissive:emis||0x000000,emissiveIntensity:.5}));
+m.position.copy(P(p));G.add(m);return m}
+function clear(){while(G.children.length){var o=G.children.pop();o.geometry&&o.geometry.dispose();o.material&&o.material.dispose()}}
+var C={corner:0x2f6fe0,body:0xf0a020,face:0x25a35a};
+function kind(p){var h=p.filter(function(c){return Math.abs(c-.5)<1e-6}).length;return h==3?'body':h==0?'corner':'face'}
+function pts(){var out=[];for(var i=0;i<=1;i++)for(var j=0;j<=1;j++)for(var k=0;k<=1;k++)BASE[s.t].forEach(function(b){var p=[b[0]+i,b[1]+j,b[2]+k];if(p.every(function(c){return c<=1+1e-6})&&!out.some(function(q){return q.every(function(c,x){return Math.abs(c-p[x])<1e-6})}))out.push(p)});return out}
+function build(){clear();var t=s.t,ru=s.tr?1/K[t]:.11,rr=ru*SZ;
+var E=[];for(var i=0;i<2;i++)for(var j=0;j<2;j++){E.push([[0,i,j],[1,i,j]],[[i,0,j],[i,1,j]],[[i,j,0],[i,j,1]])}
+E.forEach(function(e){cyl(e[0],e[1],0x8a93a6,.012,.9)});
+if(s.dg){cyl([0,0,0],[1,1,0],0xd23c3c,.017);cyl([0,0,0],[1,1,1],0xd23c3c,.017,.85)}
+var all=pts();all.forEach(function(p){ball(p,C[kind(p)],rr,s.tr?.92:null)});
+if(s.tc){var T=TOUCH[t];cyl(T[0],T[1],0xf5c542,.045)}
+if(s.nb){var ref=REF[t],cnt=0,nn=NNU[t];
+for(var i=-1;i<=2;i++)for(var j=-1;j<=2;j++)for(var k=-1;k<=2;k++)BASE[t].forEach(function(b){var p=[b[0]+i,b[1]+j,b[2]+k];
+var d=Math.hypot(p[0]-ref[0],p[1]-ref[1],p[2]-ref[2]);if(Math.abs(d-nn)<1e-6){cnt++;cyl(ref,p,0xff7a1a,.022);
+var out=p.some(function(c){return c<-1e-6||c>1+1e-6});if(out)ball(p,0xff7a1a,rr,.4);else ball(p,0xff7a1a,rr*1.35,.3)}});
+var rb=ball(ref,0xffffff,rr*1.25,.55,0xffffff);s.cnt=cnt}else s.cnt=null}
+
+// controls: drag rotate, wheel zoom, pinch
+var drag=false,lx=0,ly=0,pts2={},pd=0;
+cv.addEventListener('pointerdown',function(e){cv.setPointerCapture(e.pointerId);pts2[e.pointerId]=[e.clientX,e.clientY];drag=true;lx=e.clientX;ly=e.clientY});
+cv.addEventListener('pointermove',function(e){if(!(e.pointerId in pts2))return;pts2[e.pointerId]=[e.clientX,e.clientY];var ks=Object.keys(pts2);
+if(ks.length==2){var a=pts2[ks[0]],b=pts2[ks[1]],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pd)zoom((pd-d)*.02);pd=d;return}
+G.rotation.y+=(e.clientX-lx)*.008;G.rotation.x+=(e.clientY-ly)*.008;lx=e.clientX;ly=e.clientY});
+function up(e){delete pts2[e.pointerId];pd=0;if(!Object.keys(pts2).length)drag=false}
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+function zoom(d){cam.position.z=Math.min(13,Math.max(3.8,cam.position.z+d))}
+cv.addEventListener('wheel',function(e){e.preventDefault();zoom(e.deltaY*.005)},{passive:false});
+function size(){var w=cv.clientWidth,h=cv.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+new ResizeObserver(size).observe(cv);size();
+(function loop(){if(s.au&&!drag)G.rotation.y+=.004;R.render(sc,cam);requestAnimationFrame(loop)})();
+
+// ---------- UI ----------
+function rA(){var k=K[s.t];return s.m=='r'?{r:s.v,a:s.v*k}:{a:s.v,r:s.v/k}}
+function ui(){var o=rA(),t=s.t,a=o.a,r=o.r,n=N[t];
+var fd=S2*a,bd=S3*a,vol=n*4/3*Math.PI*Math.pow(r,3),apf=vol/Math.pow(a,3),rho=n*s.M/(Math.pow(a,3)*.6022);
+$('vv').textContent=f(s.v,2)+' Å';ext();
+$('chips').innerHTML=[['a (lattice parameter)',f(a)+' Å'],['r (atomic radius)',f(r)+' Å'],['Face diagonal',f(fd)+' Å'],['Body diagonal',f(bd)+' Å'],['প্রতি cell-এ atom',n],['Coordination number',CN[t]+(s.cnt!=null?' (✓ '+s.cnt+')':'')],['Nearest-neighbour',f(2*r)+' Å'],['Density ρ',f(rho,2)+' g/cm³']].map(function(c){return '<div class="chip"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>'}).join('');
+$('apf').style.width=(apf*100)+'%';
+var cnt={SC:'8 corner × 1/8 = <b>1</b>',BCC:'8 corner × 1/8 + 1 body × 1 = <b>2</b>',FCC:'8 corner × 1/8 + 6 face × 1/2 = <b>4</b>'}[t];
+var aF={SC:'a = 2r',BCC:'a = 4r / √3',FCC:'a = 4r / √2 = 2√2·r'}[t];
+var st=[['১. কোথায় atom ছোঁয়?',DIR[t]],
+['২. a ও r-এর সম্পর্ক','<code>'+aF+'</code> = <span class="res">'+f(a)+' Å</span> (r = '+f(r)+' Å)'],
+['৩. Pythagoras দিয়ে diagonal','Face diagonal <code>√2·a</code> = '+f(S2,3)+' × '+f(a)+' = <span class="res">'+f(fd)+' Å</span><br>Body diagonal <code>√3·a</code> = '+f(S3,3)+' × '+f(a)+' = <span class="res">'+f(bd)+' Å</span>'],
+['৪. প্রতি cell-এ atom',cnt],
+['৫. Nearest-neighbour distance','দুই atom ছুঁয়ে আছে, তাই <code>d = 2r</code> = <span class="res">'+f(2*r)+' Å</span> । Coordination number = <b>'+CN[t]+'</b>'],
+['৬. Atomic Packing Factor','<code>APF = n·(4/3)πr³ / a³</code> = '+n+' × (4/3)π × '+f(Math.pow(r,3),3)+' / '+f(Math.pow(a,3),3)+' = <span class="res">'+f(apf,4)+' ('+f(apf*100,1)+'%)</span>'],
+['৭. Density','<code>ρ = n·M / (a³·N<sub>A</sub>)</code> = '+n+' × '+s.M+' / ('+f(Math.pow(a,3),2)+'×10⁻²⁴ × 6.022×10²³) = <span class="res">'+f(rho,2)+' g/cm³</span>']];
+$('steps').innerHTML=st.map(function(x){return '<div class="step"><h3>'+x[0]+'</h3>'+x[1]+'</div>'}).join('');
+var rows=['SC','BCC','FCC'].map(function(c){var apfc={SC:'52.4%',BCC:'68.0%',FCC:'74.0%'}[c];return '<tr class="'+(c==t?'on':'')+'"><td>'+c+'</td><td>'+N[c]+'</td><td>'+CN[c]+'</td><td>'+{SC:'a = 2r',BCC:'a = 4r/√3',FCC:'a = 4r/√2'}[c]+'</td><td>'+{SC:'a',BCC:'√3·a/2',FCC:'a/√2'}[c]+'</td><td>'+apfc+'</td></tr>'}).join('');
+$('cmp').innerHTML='<tr><th>Cell</th><th>atom/cell</th><th>CN</th><th>a ও r</th><th>Nearest dist.</th><th>APF</th></tr>'+rows;
+document.querySelectorAll('#types button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t==t)});
+document.querySelectorAll('#mode button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.m==s.m)});
+}
+function range(){var a=s.m=='a';$('sl').min=a?1:.5;$('sl').max=a?7:3.5;$('sl').step=.01;$('sl').value=s.v;$('vlabel').textContent=a?'a (Å)':'r (Å)'}
+function all(){build();ui()}
+$('types').innerHTML=['SC','BCC','FCC'].map(function(t){return '<button data-t="'+t+'">'+t+'</button>'}).join('');
+$('presets').innerHTML=['SC','BCC','FCC'].map(function(t){return '<button data-p="'+t+'" aria-pressed="false">'+PRE[t].n+' ('+t+')</button>'}).join('');
+$('types').onclick=function(e){var t=e.target.dataset.t;if(t){s.t=t;all()}};
+$('presets').onclick=function(e){var t=e.target.dataset.p;if(!t)return;s.t=t;s.m='r';s.v=PRE[t].r;s.M=PRE[t].M;$('mass').value=s.M;range();all()};
+$('mode').onclick=function(e){var m=e.target.dataset.m;if(!m||m==s.m)return;var o=rA();s.m=m;s.v=+(m=='a'?o.a:o.r).toFixed(2);range();ui()};
+$('sl').oninput=function(){s.v=+this.value;ui()};
+$('mass').oninput=function(){s.M=Math.max(1,+this.value||1);ui()};
+[['tTrue','tr'],['tDiag','dg'],['tTouch','tc'],['tNb','nb'],['tAuto','au']].forEach(function(p){$(p[0]).onchange=function(){s[p[1]]=this.checked;all()}});
+$('theme').onclick=function(){var r=document.documentElement,d=getComputedStyle(r).getPropertyValue('--bg').trim()=='#0f1624';r.setAttribute('data-theme',d?'light':'dark')};
+var SZ2=2.6,am='in',ck='';
+function mk(id){var c=$(id),r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio,2));r.localClippingEnabled=true;
+var sc=new THREE.Scene(),cm=new THREE.PerspectiveCamera(40,1,.1,100);cm.position.set(0,0,8.5);sc.add(new THREE.AmbientLight(0xffffff,.7));var l=new THREE.DirectionalLight(0xffffff,.8);l.position.set(4,6,5);sc.add(l);
+var g=new THREE.Group();sc.add(g);g.rotation.set(.45,-.6,0);var o={g:g,cm:cm,dr:false,base:[],pl:[]},h=SZ2/2,lx=0,ly=0;
+[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]].forEach(function(n){o.base.push(new THREE.Plane(new THREE.Vector3(n[0],n[1],n[2]),h));o.pl.push(new THREE.Plane())});
+c.addEventListener('pointerdown',function(e){c.setPointerCapture(e.pointerId);o.dr=true;lx=e.clientX;ly=e.clientY});
+c.addEventListener('pointermove',function(e){if(!o.dr)return;g.rotation.y+=(e.clientX-lx)*.008;g.rotation.x+=(e.clientY-ly)*.008;lx=e.clientX;ly=e.clientY});
+c.addEventListener('pointerup',function(){o.dr=false});c.addEventListener('pointercancel',function(){o.dr=false});
+c.addEventListener('wheel',function(e){e.preventDefault();cm.position.z=Math.min(18,Math.max(4,cm.position.z+e.deltaY*.005))},{passive:false});
+function rs(){var w=c.clientWidth,hh=c.clientHeight;r.setSize(w,hh,false);cm.aspect=w/hh;cm.updateProjectionMatrix()}new ResizeObserver(rs).observe(c);rs();
+(function lp(){if(!o.dr)g.rotation.y+=.004;g.updateMatrixWorld(true);for(var i=0;i<6;i++)o.pl[i].copy(o.base[i]).applyMatrix4(g.matrixWorld);r.render(sc,cm);requestAnimationFrame(lp)})();return o}
+function cy(g,A,B,col,rad,op){var d=new THREE.Vector3().subVectors(B,A),L=d.length(),m=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,L,8),new THREE.MeshBasicMaterial({color:col,transparent:op!=null,opacity:op==null?1:op}));m.position.copy(A).addScaledVector(d,.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(m)}
+function bl(g,p,col,rad,op,cp){var m=new THREE.Mesh(new THREE.SphereGeometry(rad,32,24),new THREE.MeshStandardMaterial({color:col,roughness:.4,metalness:.1,side:cp?THREE.DoubleSide:THREE.FrontSide,transparent:op!=null,opacity:op==null?1:op,depthWrite:op==null,clippingPlanes:cp||null}));m.position.copy(p);g.add(m)}
+function lab(g,t,p,col){var c=document.createElement('canvas');c.width=420;c.height=96;var x=c.getContext('2d');x.font='700 44px sans-serif';var w=x.measureText(t).width+44;x.fillStyle='rgba(255,255,255,.94)';x.fillRect(210-w/2,10,w,76);x.strokeStyle=col;x.lineWidth=4;x.strokeRect(210-w/2,10,w,76);x.fillStyle=col;x.textAlign='center';x.textBaseline='middle';x.fillText(t,210,50);
+var sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));sp.position.copy(p);sp.scale.set(2.1,.48,1);g.add(sp)}
+function clr(g){while(g.children.length){var o=g.children.pop();if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose()}}}
+var LS=mk('cvL'),AS=mk('cvA'),V=function(x,y,z){return new THREE.Vector3(x,y,z)};
+function kd(p){var h=p.filter(function(c){return Math.abs((c%1)-.5)<1e-6}).length;return h==3?'body':h==0?'corner':'face'}
+function buildL(){var g=LS.g;clr(g);var t=s.t,n=+$('tile').value,u=1.5,Q=function(p){return V((p[0]-n/2)*u,(p[1]-n/2)*u,(p[2]-n/2)*u)};
+for(var i=0;i<=n;i++)for(var j=0;j<=n;j++){cy(g,Q([0,i,j]),Q([n,i,j]),0x8a93a6,.007,.65);cy(g,Q([i,0,j]),Q([i,n,j]),0x8a93a6,.007,.65);cy(g,Q([i,j,0]),Q([i,j,n]),0x8a93a6,.007,.65)}
+for(var a=0;a<2;a++)for(var b=0;b<2;b++){cy(g,Q([0,a,b]),Q([1,a,b]),0x2f6fe0,.02);cy(g,Q([a,0,b]),Q([a,1,b]),0x2f6fe0,.02);cy(g,Q([a,b,0]),Q([a,b,1]),0x2f6fe0,.02)}
+for(i=0;i<=n;i++)for(j=0;j<=n;j++)for(var k=0;k<=n;k++)BASE[t].forEach(function(b){var p=[b[0]+i,b[1]+j,b[2]+k];if(p.every(function(c){return c<=n+1e-6}))bl(g,Q(p),C[kd(p)],.14)});
+cy(g,Q([0,0,0]),Q([1,0,0]),0xd23c3c,.04);cy(g,Q([0,0,0]),Q([0,1,0]),0xd23c3c,.04);cy(g,Q([0,0,0]),Q([0,0,1]),0xd23c3c,.04);
+lab(g,'a',Q([.5,-.16,0]),'#d23c3c');lab(g,'a',Q([-.16,.5,0]),'#d23c3c');lab(g,'a',Q([-.1,-.1,.5]),'#d23c3c');LS.cm.position.z=6.5+n*1.8}
+function buildA(){var g=AS.g,t=s.t,rr=SZ2/K[t],gh=$('tGh').checked,E=[];clr(g);g.position.set(0,0,0);
+var ed=function(ox){for(var i=-1;i<=1;i+=2)for(var j=-1;j<=1;j+=2){var h=SZ2/2;cy(g,V(ox-h,i*h,j*h),V(ox+h,i*h,j*h),0x8a93a6,.015);cy(g,V(ox+i*h,-h,j*h),V(ox+i*h,h,j*h),0x8a93a6,.015);cy(g,V(ox+i*h,j*h,-h),V(ox+i*h,j*h,h),0x8a93a6,.015)}};
+if(am=='in'){ed(0);pts().forEach(function(p){bl(g,P(p),C[kind(p)],rr,null,AS.pl);if(gh)bl(g,P(p),C[kind(p)],rr,.12)});lab(g,'a',V(0,-SZ2/2-.35,SZ2/2),'#d23c3c');AS.cm.position.z=8.5}
+else{ed(-2.5);var m=new THREE.Mesh(new THREE.BoxGeometry(SZ2,SZ2,SZ2),new THREE.MeshBasicMaterial({color:0x8a93a6,transparent:true,opacity:.1,depthWrite:false}));m.position.set(-2.5,0,0);g.add(m);
+var cols={SC:[0x2f6fe0],BCC:[0x2f6fe0,0xf0a020],FCC:[0x2f6fe0,0x25a35a,0x25a35a,0x25a35a]}[t],n=cols.length,cc=n>2?2:n,rw=Math.ceil(n/cc),d=2*rr+.04;
+cols.forEach(function(c,k){bl(g,V(2.8+((k%cc)-(cc-1)/2)*d,-(Math.floor(k/cc)-(rw-1)/2)*d,0),c,rr)});
+lab(g,'cell volume = a³',V(-2.5,-SZ2/2-.4,0),'#2f6fe0');lab(g,'atom volume = '+n+'·(4/3)πr³',V(2.8,-2.4,0),'#25a35a');AS.cm.position.z=12}}
+function ext(){var o=rA(),t=s.t,r=o.r,a=o.a,n=N[t],va=n*4/3*Math.PI*Math.pow(r,3),vc=Math.pow(a,3),apf=va/vc,e=function(x){return f(x,3)};
+var key=t+am+$('tGh').checked+$('tile').value;if(key!=ck){ck=key;buildL();buildA()}
+$('latBox').innerHTML='এখন <b>a = '+f(a,3)+' Å</b> ('+f(a/10,4)+' nm)। মানে ওই দিকে প্রতি '+f(a,3)+' Å পরপর একই রকম atom-এর বিন্যাস আসে। Cell-এর volume <code>a³</code> = '+f(vc,2)+' Å³।';
+$('apfCap').innerHTML=am=='in'?'<span>কাটা অংশ = সত্যিই cell-এর ভেতরে থাকা atom। Corner 1/8, face 1/2, body পুরো।</span>':'<span>বামে a³ আয়তনের খালি cell, ডানে cell-এর ভেতরের সব atom-অংশ জুড়ে '+n+' টা পুরো atom। APF = ডান পাশের volume ÷ বাম পাশের volume।</span>';
+var der={SC:'1·(4/3)πr³ / (2r)³ = π/6',BCC:'2·(4/3)πr³ / (4r/√3)³ = π√3/8',FCC:'4·(4/3)πr³ / (2√2·r)³ = π/(3√2)'}[t];
+var bars=['SC','BCC','FCC'].map(function(c){var v={SC:52.36,BCC:68.02,FCC:74.05}[c];return '<div class="cmpr'+(c==t?' on':'')+'"><b>'+c+'</b><div class="bar"><div style="width:'+v+'%"></div></div><span>'+f(v,1)+'%</span></div>'}).join('');
+$('apfBox').innerHTML='<div class="step" style="border:0;padding-top:0"><h3>Cell-এর ভেতরে জায়গার ভাগ</h3><div class="sbar"><span style="width:'+(apf*100)+'%;background:var(--green)">Atom '+f(apf*100,1)+'%</span><span style="width:'+((1-apf)*100)+'%;background:var(--mute)">Void '+f((1-apf)*100,1)+'%</span></div></div>'+
+'<div class="step"><h3>সংখ্যা বসিয়ে</h3>Atom-এর volume = <code>n·(4/3)πr³</code> = '+n+' × (4/3)π × ('+f(r,3)+')³ = <span class="res">'+f(va,2)+' Å³</span><br>Cell-এর volume = <code>a³</code> = ('+f(a,3)+')³ = <span class="res">'+f(vc,2)+' Å³</span><br>APF = '+f(va,2)+' / '+f(vc,2)+' = <span class="res">'+e(apf)+'</span></div>'+
+'<div class="step"><h3>Symbolic রূপ (r কেটে যায়)</h3><code>APF = '+der+' ≈ '+f(apf,4)+'</code></div><div class="step"><h3>তিন structure-এর তুলনা</h3>'+bars+'</div>'}
+$('tile').oninput=ext;$('tGh').onchange=ext;
+$('apfmode').onclick=function(e){var m=e.target.dataset.m;if(!m)return;am=m;this.querySelectorAll('button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.m==m)});ext()};
+$('mass').value=s.M;range();all();
+})();
+</script>
+</body>
+</html>
